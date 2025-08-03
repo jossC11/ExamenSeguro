@@ -1,0 +1,33 @@
+name: SonarCloud analysis
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  pull-requests: read # allows SonarCloud to decorate PRs with analysis results
+
+jobs:
+  Analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Analyze with SonarCloud
+        uses: SonarSource/sonarcloud-github-action@4006f663ecaf1f8093e8e4abb9227f6041f52216
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=kelly-sangoluisa_ExamenSeguro
+            -Dsonar.organization=kelly-sangoluisa
+            -Dsonar.sources=core-bankec-python
+            -Dsonar.tests=core-bankec-python/tests
+            -Dsonar.exclusions=**/venv/**,**/__pycache__/**
+            -Dsonar.verbose=true
+          projectBaseDir: .
