@@ -1,1 +1,49 @@
+name: SonarCloud analysis
 
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  pull-requests: write  # Permite a SonarCloud comentar en los PRs
+
+jobs:
+  SonarCloud:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout del código
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2. Configurar Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.5'
+
+      # 3. Instalar dependencias
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # 4. Ejecutar análisis de SonarCloud
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@v4.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=kelly-sangoluisa_ExamenSeguro
+            -Dsonar.organization=kelly-sangoluisa
+            -Dsonar.sources=.
+            -Dsonar.tests=core-bankec-python/tests
+            -Dsonar.exclusions=**/venv/**,**/__pycache__/**
